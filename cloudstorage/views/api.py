@@ -5,12 +5,7 @@ from rest_framework import routers, serializers, viewsets, mixins
 from rest_framework.generics import GenericAPIView, get_object_or_404
 
 from cloudstorage.models import File, Folder
-
-
-class UserSerializer(serializers.HyperlinkedModelSerializer):
-    class Meta:
-        model = User
-        fields = ('username', 'email', 'is_staff')
+from cloudstorage.serializers import FolderSerializer, FileSerializer, UserSerializer
 
 
 # ViewSets define the view behavior.
@@ -19,50 +14,29 @@ class UserViewSet(viewsets.ModelViewSet):
     serializer_class = UserSerializer
 
 
-class FileSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = File
-        fields = '__all__'
-
-
-class FolderSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Folder
-        fields = ('name', 'parent', 'id', 'owner', 'created', 'modified', 'tree_id')
-        read_only_fields = ('id', 'owner', 'created', 'modified', 'tree_id')
-
-    def validate_parent(self, value):
-        request = self.context['request']
-        if value.owner != request.user:
-            raise serializers.ValidationError('Not your folder')
-        return value
-
-    def create(self, validated_data):
-        folder = Folder()
-        folder.name = validated_data['name']
-        folder.parent = validated_data['parent']
-        folder.owner = validated_data['user']
-        folder.save()
-        return folder
-
-    def update(self, instance, validated_data):
-        if 'name' in validated_data:
-            instance.name = validated_data['name']
-
-        if 'parent' in validated_data:
-            instance.parent = validated_data['parent']
-
-        instance.save()
-        return instance
-
-
 class FolderAPIView(GenericAPIView):
+    """
+    Base folder API class so we don't have to repeat ourselves
+    """
     queryset = Folder.objects.all()
     serializer_class = FolderSerializer
 
+    def get_queryset(self):
+        """
+        Filter queryset by owner = requesting user (eg. adds 'where' clause to query)
+        Now you can only see your own folders :)
+        """
+        queryset = super().get_queryset()
+        queryset = queryset.filter(owner=self.request.user)
+        return queryset
+
 
 class FolderListAPIView(mixins.ListModelMixin, mixins.CreateModelMixin, FolderAPIView):
-
+    """
+    URL eg. /api/folders/
+    GET: Displays a list of folders for the requesting user
+    POST: Creates a new folder for the requesting user
+    """
     def get(self, request):
         return self.list(request=request)
 
@@ -73,42 +47,88 @@ class FolderListAPIView(mixins.ListModelMixin, mixins.CreateModelMixin, FolderAP
         serializer.save(user=self.request.user)
 
 
-class FolderDetailAPIView(mixins.RetrieveModelMixin, FolderAPIView):
+class FolderDetailAPIView(mixins.RetrieveModelMixin, mixins.UpdateModelMixin, mixins.DestroyModelMixin, FolderAPIView):
+    """
+    URL eg. /api/folders/:id/
+    GET: Displays a single folder's details
+    PUT: Updates a folder's details
+    DELETE: Deletes a folder 
+    """
     lookup_field = 'id'
     lookup_url_kwarg = 'folder_id'
 
     def get(self, request, folder_id):
         return self.retrieve(request=request, folder_id=folder_id)
 
+    def put(self, request, folder_id):
+        return self.update(request=request, folder_id=folder_id)
+
+    def delete(self, request, folder_id):
+        return self.destroy(request=request, folder_id=folder_id)
+
 
 class FileAPIView(GenericAPIView):
+    """
+    Base file API class so we don't have to repeat ourselves
+    """
     queryset = File.objects.all()
     serializer_class = FileSerializer
 
     def get_queryset(self):
+        """
+        Filter queryset by folder
+        """
         folder = self.get_folder()
         queryset = super().get_queryset()
-        queryset = queryset.filter(location=folder)
+        queryset = queryset.filter(folder=folder)
         return queryset
 
     def get_folder(self):
+        """
+        Returns and instance of a folder with a given id, owned by the requesting user.
+        If the folder doesn't exist, raises a Http404 error
+        """
         queryset = Folder.objects.all()
         return get_object_or_404(queryset, owner=self.request.user,
                                  id=self.kwargs['folder_id'])
 
 
-class FileListAPIView(mixins.ListModelMixin, FileAPIView):
-
+class FileListAPIView(mixins.ListModelMixin, mixins.CreateModelMixin, FileAPIView):
+    """
+    URL eg. /api/folders/:id/files/
+    GET: Displays a list of files in the specified folder for the requesting user
+    POST: Creates a new file in the specified folder owned by the requesting user
+    """
     def get(self, request, folder_id):
         return self.list(request=request, folder_id=folder_id)
 
+    def post(self, request, folder_id):
+        return self.create(request=request, folder_id=folder_id)
 
-class FileDetailAPIView(mixins.RetrieveModelMixin, FileAPIView):
+    def perform_create(self, serializer):
+        serializer.save(owner=self.request.user, folder=self.get_folder())
+
+
+class FileDetailAPIView(mixins.RetrieveModelMixin, mixins.UpdateModelMixin, mixins.DestroyModelMixin,FileAPIView):
+    """
+    URL eg. /api/folders/:id/files/:id/
+    GET: Displays a single file's details
+    PUT: Updates a file's details
+    DELETE: Deletes a file 
+    """
+
     lookup_field = 'id'
     lookup_url_kwarg = 'file_id'
 
     def get(self, request, folder_id, file_id):
         return self.retrieve(request=request, folder_id=folder_id, file_id=file_id)
+
+    def put(self, request, folder_id, file_id):
+        # raise NotImplementedError("Implement me")
+        return self.update(request=request, folder_id=folder_id, file_id=file_id)
+
+    def delete(self, request, folder_id, file_id):
+        return self.destroy(request=request, folder_id=folder_id, file_id=file_id)
 
 
 # Routers provide an easy way of automatically determining the URL conf.
