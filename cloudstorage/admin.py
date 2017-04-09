@@ -27,7 +27,7 @@ class FileAdmin(admin.ModelAdmin):
     list_display = (
         'name',
         'owner',
-        'location',
+        'folder',
         'mime_type',
         'created',
     )
