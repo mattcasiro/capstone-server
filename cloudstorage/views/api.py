@@ -1,17 +1,26 @@
-from django.contrib.auth.models import User
+# from django.contrib.auth.models import User
 from rest_framework import routers, serializers, viewsets, mixins
 
 # Serializers define the API representation.
 from rest_framework.generics import GenericAPIView, get_object_or_404
+from rest_framework.response import Response
+from rest_framework.views import APIView
 
-from cloudstorage.models import File, Folder
-from cloudstorage.serializers import FolderSerializer, FileSerializer, UserSerializer
+from cloudstorage.models import File, Folder, StorageUser
+from cloudstorage.serializers import FolderSerializer, FileSerializer, UserSerializer, UserProfileSerializer
 
 
 # ViewSets define the view behavior.
 class UserViewSet(viewsets.ModelViewSet):
-    queryset = User.objects.all()
+    queryset = StorageUser.objects.all()
     serializer_class = UserSerializer
+
+
+class ProfileView(APIView):
+
+    def get(self, request):
+        serializer = UserProfileSerializer(request.user)
+        return Response(serializer.data)
 
 
 class FolderAPIView(GenericAPIView):
