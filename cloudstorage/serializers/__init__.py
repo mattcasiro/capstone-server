@@ -2,3 +2,4 @@
 from .folder import FolderSerializer
 from .file import FileSerializer
 from .user import UserSerializer
+from .profile import UserProfileSerializer
