@@ -25,4 +25,7 @@ class FileSerializer(serializers.ModelSerializer):
 
     #TODO: implement this - maybe name & folder
     def update(self, instance, validated_data):
+        instance.name = validated_data.get('name', instance.name)
+        instance.folder = validated_data.get('folder', instance.folder)
+        instance.save()
         return instance
