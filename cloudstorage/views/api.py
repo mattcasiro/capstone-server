@@ -15,11 +15,22 @@ class UserViewSet(viewsets.ModelViewSet):
     queryset = StorageUser.objects.all()
     serializer_class = UserSerializer
 
+#TODO: /api/login/ POST
+
 
 class ProfileView(APIView):
 
     def get(self, request):
         serializer = UserProfileSerializer(request.user)
+        return Response(serializer.data)
+
+    def put(self, request):
+        serializer = UserProfileSerializer(instance=request.user, data=request.data)
+
+        if not serializer.is_valid():
+            return Response(serializer.errors, status=400)
+
+        serializer.save()
         return Response(serializer.data)
 
 
@@ -139,6 +150,7 @@ class FileDetailAPIView(mixins.RetrieveModelMixin, mixins.UpdateModelMixin, mixi
     def delete(self, request, folder_id, file_id):
         return self.destroy(request=request, folder_id=folder_id, file_id=file_id)
 
+#TODO: 302 Redirect to amazon for file data
 
 # Routers provide an easy way of automatically determining the URL conf.
 router = routers.DefaultRouter()
