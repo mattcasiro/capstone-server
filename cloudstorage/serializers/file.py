@@ -11,6 +11,7 @@ class FileSerializer(serializers.ModelSerializer):
         fields = ('id', 'name', 'original_name', 'size', 'mime_type', 'created', 'modified', 'folder', 'file', 'owner')
         read_only_fields = ('id', 'original_name', 'size', 'mime_type', 'created', 'modified', 'folder', 'owner')
 
+    #TODO: get file size, mime type
     def create(self, validated_data):
         file = File()
         file.name = validated_data['name']
@@ -23,7 +24,6 @@ class FileSerializer(serializers.ModelSerializer):
         file.save()
         return file
 
-    #TODO: implement this - maybe name & folder
     def update(self, instance, validated_data):
         instance.name = validated_data.get('name', instance.name)
         instance.folder = validated_data.get('folder', instance.folder)
