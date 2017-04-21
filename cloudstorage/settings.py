@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     'cloudstorage',
     'mptt',
     'rest_framework',
+    'rest_framework.authtoken',
 ]
 
 MIDDLEWARE = [

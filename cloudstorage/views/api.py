@@ -1,21 +1,40 @@
 # from django.contrib.auth.models import User
 from rest_framework import routers, serializers, viewsets, mixins
 
+
 # Serializers define the API representation.
+from rest_framework.authtoken.models import Token
 from rest_framework.generics import GenericAPIView, get_object_or_404
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from django.contrib.auth import authenticate
+from cloudstorage.models import File, Folder
+from cloudstorage.serializers import FolderSerializer, FileSerializer, UserProfileSerializer
 
-from cloudstorage.models import File, Folder, StorageUser
-from cloudstorage.serializers import FolderSerializer, FileSerializer, UserSerializer, UserProfileSerializer
 
+class LoginView(APIView):
 
-# ViewSets define the view behavior.
-class UserViewSet(viewsets.ModelViewSet):
-    queryset = StorageUser.objects.all()
-    serializer_class = UserSerializer
+    def post(self, request):
+        """
+        Logins a user using email and password credentials. 
+        Refreshes the token every time the user logs in.
+        """
 
-#TODO: /api/login/ POST
+        if 'email' not in request.data or 'password' not in request.data:
+            return Response({'status': 'Must supply email & password'}, status=400)
+
+        user = authenticate(request=request,
+                            username=request.data['email'],
+                            password=request.data['password'])
+
+        if user is None:
+            return Response({'status': 'invalid credentials'}, status=401)
+
+        Token.objects.filter(user=user).delete()
+
+        token = Token.objects.create(user=user)
+
+        return Response({'status': 'Success', 'token': token.key}, status=200)
 
 
 class ProfileView(APIView):
@@ -152,6 +171,3 @@ class FileDetailAPIView(mixins.RetrieveModelMixin, mixins.UpdateModelMixin, mixi
 
 #TODO: 302 Redirect to amazon for file data
 
-# Routers provide an easy way of automatically determining the URL conf.
-router = routers.DefaultRouter()
-router.register(r'users', UserViewSet)

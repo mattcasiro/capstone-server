@@ -30,7 +30,10 @@ urlpatterns = [
 urlpatterns += [
     url(r'^api/profile/',
         api.ProfileView.as_view()),
-    
+
+    url(r'^api/login/',
+        api.LoginView.as_view()),
+
     url(r'^api/folders/$',
         api.FolderListAPIView.as_view()),
 
@@ -43,7 +46,6 @@ urlpatterns += [
     url(r'^api/folders/(?P<folder_id>\d+)/files/(?P<file_id>\d+)/$',
         api.FileDetailAPIView.as_view()),
 
-    url(r'^api/', include(api.router.urls)),
     url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework'))
 ]
 
