@@ -28,10 +28,10 @@ urlpatterns = [
 # Wire up our API using automatic URL routing.
 # Additionally, we include login URLs for the browsable API.
 urlpatterns += [
-    url(r'^api/profile/',
+    url(r'^api/profile/$',
         api.ProfileView.as_view()),
 
-    url(r'^api/login/',
+    url(r'^api/login/$',
         api.LoginView.as_view()),
 
     url(r'^api/folders/$',
