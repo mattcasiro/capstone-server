@@ -5,6 +5,7 @@ from rest_framework import routers, serializers, viewsets, mixins
 # Serializers define the API representation.
 from rest_framework.authtoken.models import Token
 from rest_framework.generics import GenericAPIView, get_object_or_404
+from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from django.contrib.auth import authenticate
@@ -13,6 +14,7 @@ from cloudstorage.serializers import FolderSerializer, FileSerializer, UserProfi
 
 
 class LoginView(APIView):
+    permission_classes = (AllowAny,)
 
     def post(self, request):
         """
@@ -38,8 +40,16 @@ class LoginView(APIView):
 
 
 class ProfileView(APIView):
+    # Authentication requirement handled with Django magic using
+    # project settings
+    # permission_classes = (IsAuthenticated,)
 
     def get(self, request):
+        # Authentication requirement handled with Django magic using
+        # permission_classes at the class level
+        # if request.user.is_anonymous():
+        #     return Response(status=401)
+
         serializer = UserProfileSerializer(request.user)
         return Response(serializer.data)
 
