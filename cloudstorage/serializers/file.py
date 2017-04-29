@@ -1,5 +1,5 @@
 from rest_framework import serializers
-
+from django.core import exceptions
 from cloudstorage.models import File
 
 
@@ -13,6 +13,11 @@ class FileSerializer(serializers.ModelSerializer):
 
     #TODO: get file size
     def create(self, validated_data):
+        if 'folder' not in validated_data:
+            raise ValueError('Must pass folder to validated_data')
+        if 'owner' not in validated_data:
+            raise ValueError('Must pass owner to validated_data')
+
         file = File()
         file.name = validated_data['name']
         file.original_name = validated_data['name']
