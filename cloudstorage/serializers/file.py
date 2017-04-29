@@ -11,21 +11,22 @@ class FileSerializer(serializers.ModelSerializer):
         fields = ('id', 'name', 'original_name', 'size', 'mime_type', 'created', 'modified', 'folder', 'file', 'owner')
         read_only_fields = ('id', 'original_name', 'size', 'mime_type', 'created', 'modified', 'folder', 'owner')
 
-    #TODO: get file size, mime type
+    #TODO: get file size
     def create(self, validated_data):
         file = File()
         file.name = validated_data['name']
         file.original_name = validated_data['name']
         file.size = 1234
-        file.mime_type = 'image/jpeg'
         file.folder = validated_data['folder']
         file.file = validated_data['file']
         file.owner = validated_data['owner']
+        file.set_mime_type()
         file.save()
         return file
 
     def update(self, instance, validated_data):
         instance.name = validated_data.get('name', instance.name)
         instance.folder = validated_data.get('folder', instance.folder)
+        #set 'modified' date?
         instance.save()
         return instance
