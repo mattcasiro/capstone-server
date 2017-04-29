@@ -75,12 +75,12 @@ class StorageUser(PermissionsMixin, AbstractBaseUser):
     def save(self, *args, **kwargs):
         # check if user has ID, if not they are a new user and need a root folder
         # created on their account
-        created = False if self.id else True
+        is_new_user = False if self.id else True
 
         super().save(*args, **kwargs)
 
         # create the root folder
-        if created:
+        if is_new_user:
             folder = Folder()
             folder.name = "root"
             folder.owner = self
