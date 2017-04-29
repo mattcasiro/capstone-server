@@ -23,8 +23,6 @@ class FileSerializer(serializers.ModelSerializer):
         file.original_name = validated_data['name']
         file.size = 1234
         file.folder = validated_data['folder']
-
-
         file.file = validated_data['file']
         file.owner = validated_data['owner']
         file.set_mime_type()
