@@ -1,4 +1,5 @@
 # from django.contrib.auth.models import User
+from django.http import HttpResponseRedirect
 from rest_framework import routers, serializers, viewsets, mixins
 
 
@@ -179,5 +180,22 @@ class FileDetailAPIView(mixins.RetrieveModelMixin, mixins.UpdateModelMixin, mixi
     def delete(self, request, folder_id, file_id):
         return self.destroy(request=request, folder_id=folder_id, file_id=file_id)
 
-#TODO: 302 Redirect to amazon for file data
+
+class FileRedirectAPIView(FileAPIView):
+    """
+    Retrieves the file from the database and returns a redirect to the
+    location of the file.
+    """
+    lookup_field = 'id'
+    lookup_url_kwarg = 'file_id'
+
+    def get(self, request, folder_id, file_id):
+        queryset = File.objects.filter(folder_id=folder_id, owner=request.user)
+
+        try:
+            file = queryset.get(id=file_id)
+        except File.DoesNotExist:
+            return Response(status=404)
+
+        return HttpResponseRedirect(file.file.url)
 
