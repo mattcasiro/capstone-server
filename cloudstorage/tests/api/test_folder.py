@@ -42,8 +42,6 @@ class FolderAPITests(APITestCase):
         folder_2.save()
         self.folder_2 = folder_2
 
-
-
     def test_get_folder_list_not_authenticated(self):
         url = '/api/folders/'
         response = self.client.get(url)
@@ -60,5 +58,28 @@ class FolderAPITests(APITestCase):
         self.assertEqual(response.data[1]['name'], 'test_folder_1')
         self.assertEqual(response.data[1]['parent'], self.folder_root_1.id)
 
-    def test_post_success(self):
-        self.fail('implement me')
+    def test_post_folder_list_not_authenticated(self):
+        url = '/api/folders/'
+        data = {}
+        response = self.client.post(url, data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_post_folder_list_invalid_data(self):
+        url = '/api/folders/'
+        data = {'name': 'folder_3',
+                'parent': 999}
+        self.client.force_authenticate(user=self.user_1)
+        response = self.client.post(url, data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_post_folder_list_success(self):
+        url = '/api/folders/'
+        data = {'name': 'folder_3',
+                'parent': self.folder_root_1.id,}
+        self.client.force_authenticate(user=self.user_1)
+        response = self.client.post(url, data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(response.data['name'], 'folder_3')
+        self.assertEqual(response.data['parent'], self.folder_root_1.id)
+        self.assertEqual(response.data['owner'], self.user_1.id)
+
