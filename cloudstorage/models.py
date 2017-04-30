@@ -124,3 +124,6 @@ class File(models.Model):
     def set_mime_type(self):
         mimetype, encoding = mimetypes.guess_type(self.file.name)
         self.mime_type = mimetype
+
+    def set_file_size(self):
+        self.size = self.file.size
