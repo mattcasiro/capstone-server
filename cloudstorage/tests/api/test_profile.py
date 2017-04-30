@@ -38,3 +38,34 @@ class ProfileViewTest(APITestCase):
         updated_user = StorageUser.objects.get(id=self.user.id)
         self.assertEqual(updated_user.first_name, data['first_name'])
         self.assertEqual(updated_user.last_name, data['last_name'])
+
+    def test_put_profile_missing_data(self):
+        url = '/api/profile/'
+        self.client.force_authenticate(user=self.user)
+        # first_name and last_name are required
+        data = {'name': 'kered'}
+        response = self.client.put(url, data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        data = {'first_name': 'kered'}
+        response = self.client.put(url, data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        data = {'last_name': 'kered'}
+        response = self.client.put(url, data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_put_profile_ignores_invalid_data(self):
+        url = '/api/profile/'
+        self.client.force_authenticate(user=self.user)
+        data = {'first_name': 'kered', 'last_name': 'drahpehs', 'gender': 'fluid'}
+        response = self.client.put(url, data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_put_profile_read_only_field_not_changed(self):
+        url = '/api/profile/'
+        self.client.force_authenticate(user=self.user)
+        data = {'first_name': 'kered', 'last_name': 'drahpehs', 'email': 'tset@tset.moc'}
+        response = self.client.put(url, data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        updated_user = StorageUser.objects.get(id=self.user.id)
+        self.assertEqual(self.user.email, updated_user.email)
+
