@@ -82,4 +82,62 @@ class FolderAPITests(APITestCase):
         self.assertEqual(response.data['name'], 'folder_3')
         self.assertEqual(response.data['parent'], self.folder_root_1.id)
         self.assertEqual(response.data['owner'], self.user_1.id)
+        self.assertEqual(Folder.objects.get(name='folder_3').id, response.data['id'])
+
+    def test_get_folder_detail_not_authenticated(self):
+        url = '/api/folders/{}/' .format(self.folder_1.id)
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_get_folder_detail_invalid_data(self):
+        url = '/api/folders/{}/' .format('999')
+        self.client.force_authenticate(user=self.user_1)
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+    def test_get_folder_detail_other_user(self):
+        url = '/api/folders/{}/' .format(self.folder_2.id)
+        self.client.force_authenticate(user=self.user_1)
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+    def test_get_folder_detail_success(self):
+        url = '/api/folders/{}/' .format(self.folder_1.id)
+        self.client.force_authenticate(user=self.user_1)
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data['name'], 'test_folder_1')
+
+    def test_put_folder_detail_not_authenticated(self):
+        url = '/api/folders/{}/' .format(self.folder_1.id)
+        response = self.client.put(url)
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_put_folder_detail_success(self):
+        # Create a new folder to act as a new parent for folder_1
+        folder_3 = Folder()
+        folder_3.name = 'test_folder_3'
+        folder_3.parent = self.folder_root_1
+        folder_3.owner = self.user_1
+        folder_3.save()
+
+        url = '/api/folders/{}/' .format(self.folder_1.id)
+        self.client.force_authenticate(user=self.user_1)
+        data = {'name': 'folder_1a', 'parent': folder_3.id}
+        response = self.client.put(url, data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(Folder.objects.get(name='folder_1a').id, self.folder_1.id)
+
+    def test_delete_folder_detail_not_authenticated(self):
+        url = '/api/folders/{}/' .format(self.folder_1.id)
+        response = self.client.delete(url)
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_delete_folder_detail_success(self):
+        url = '/api/folders/{}/' .format(self.folder_1.id)
+        self.client.force_authenticate(user=self.user_1)
+        response = self.client.delete(url)
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+        with self.assertRaises(Folder.DoesNotExist):
+            Folder.objects.get(id=self.folder_1.id)
 
