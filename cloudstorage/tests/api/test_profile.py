@@ -29,6 +29,12 @@ class ProfileViewTest(APITestCase):
         self.assertEqual(response.data['id'], self.user.id)
         self.assertEqual(response.data['email'], 'test@test.com')
 
+    def test_put_profile_not_authenticated(self):
+        url = '/api/profile/'
+        data = {'first_name': 'kered', 'last_name': 'drahpehs'}
+        response = self.client.put(url, data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
     def test_put_profile_success(self):
         url = '/api/profile/'
         self.client.force_authenticate(user=self.user)
@@ -58,7 +64,7 @@ class ProfileViewTest(APITestCase):
         self.client.force_authenticate(user=self.user)
         data = {'first_name': 'kered', 'last_name': 'drahpehs', 'gender': 'fluid'}
         response = self.client.put(url, data, format='json')
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
     def test_put_profile_read_only_field_not_changed(self):
         url = '/api/profile/'
