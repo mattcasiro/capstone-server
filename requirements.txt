@@ -8,3 +8,4 @@ requests==2.12.1
 boto3==1.4.4
 django-storages==1.5.2
 gunicorn==19.7.1
+django-environ==0.4.3
