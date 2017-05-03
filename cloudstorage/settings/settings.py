@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'rest_framework.authtoken',
     'storages',
+    'debug_toolbar',
 ]
 
 MIDDLEWARE = [
@@ -52,6 +53,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'debug_toolbar.middleware.DebugToolbarMiddleware',
 ]
 
 ROOT_URLCONF = 'cloudstorage.urls'
@@ -136,4 +138,10 @@ REST_FRAMEWORK = {
     )
 }
 
+<<<<<<< HEAD:cloudstorage/settings.py
 # DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
+=======
+INTERNAL_IPS = [
+    '127.0.0.1',
+]
+>>>>>>> 8222fef3c3cb7513fcc77c557f0c1af238b4ea7d:cloudstorage/settings/settings.py

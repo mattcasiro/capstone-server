@@ -1,8 +1,10 @@
 api==0.0.1.dev1
 Django==1.11
+django-debug-toolbar==1.7
 django-mptt==0.8.7
 djangorestframework==3.6.2
 pytz==2017.2
 requests==2.12.1
 boto3==1.4.4
 django-storages==1.5.2
+gunicorn==19.7.1
