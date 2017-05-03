@@ -1,6 +1,6 @@
 from django.contrib import admin
 from mptt.admin import MPTTModelAdmin, DraggableMPTTAdmin
-from cloudstorage.models import Folder, File
+from cloudstorage.models import Folder, File, StorageUser
 
 
 class FileInLine(admin.TabularInline):
@@ -32,5 +32,9 @@ class FileAdmin(admin.ModelAdmin):
         'created',
     )
 
+class StorageUserAdmin(admin.ModelAdmin):
+    list_display = ('id', 'email', 'first_name', 'last_name')
+
 admin.site.register(Folder, FolderAdmin)
 admin.site.register(File, FileAdmin)
+admin.site.register(StorageUser, StorageUserAdmin)
