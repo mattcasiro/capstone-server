@@ -134,7 +134,7 @@ AUTH_USER_MODEL = 'cloudstorage.StorageUser'
 # https://docs.djangoproject.com/en/1.11/howto/static-files/
 
 STATIC_URL = '/static/'
-STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+STATIC_ROOT = os.path.join(ROOT_DIR, 'staticfiles')
 MEDIA_ROOT = 'media'
 MEDIA_URL = '/media/'
 
