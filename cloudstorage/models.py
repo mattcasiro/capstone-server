@@ -1,3 +1,5 @@
+import mimetypes
+
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.contrib.auth.base_user import AbstractBaseUser, BaseUserManager
@@ -70,6 +72,20 @@ class StorageUser(PermissionsMixin, AbstractBaseUser):
         # The user is identified by their email address
         return self.email
 
+    def save(self, *args, **kwargs):
+        # check if user has ID, if not they are a new user and need a root folder
+        # created on their account
+        is_new_user = False if self.id else True
+
+        super().save(*args, **kwargs)
+
+        # create the root folder
+        if is_new_user:
+            folder = Folder()
+            folder.name = "root"
+            folder.owner = self
+            folder.save()
+
     def __str__(self):
         return self.email
 
@@ -104,3 +120,10 @@ class File(models.Model):
 
     def __str__(self):
         return self.name
+
+    def set_mime_type(self):
+        mimetype, encoding = mimetypes.guess_type(self.file.name)
+        self.mime_type = mimetype
+
+    def set_file_size(self):
+        self.size = self.file.size

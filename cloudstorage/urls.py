@@ -13,6 +13,7 @@ Including another URLconf
     1. Import the include() function: from django.conf.urls import url, include
     2. Add a URL to urlpatterns:  url(r'^blog/', include('blog.urls'))
 """
+import debug_toolbar
 from django.conf import settings
 from django.conf.urls import url, include
 from django.conf.urls.static import static
@@ -46,8 +47,16 @@ urlpatterns += [
     url(r'^api/folders/(?P<folder_id>\d+)/files/(?P<file_id>\d+)/$',
         api.FileDetailAPIView.as_view()),
 
+    url(r'^api/folders/(?P<folder_id>\d+)/files/(?P<file_id>\d+)/file/$',
+        api.FileRedirectAPIView.as_view()),
+
+
+
     url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework'))
 ]
 
 if settings.DEBUG:
+    urlpatterns = [
+                      url(r'^__debug__/', include(debug_toolbar.urls)),
+                  ] + urlpatterns
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
