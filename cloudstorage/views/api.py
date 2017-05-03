@@ -26,6 +26,9 @@ class LoginView(APIView):
         if 'email' not in request.data or 'password' not in request.data:
             return Response({'status': 'Must supply email & password'}, status=400)
 
+        if 'brew' in request.data and request.data['brew'] == 'coffee':
+            return Response({'status': "I'm a teapot."}, status=418)
+
         user = authenticate(request=request,
                             username=request.data['email'],
                             password=request.data['password'])
