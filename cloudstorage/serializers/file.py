@@ -21,11 +21,11 @@ class FileSerializer(serializers.ModelSerializer):
         file = File()
         file.name = validated_data['name']
         file.original_name = validated_data['name']
-        file.set_file_size()
         file.folder = validated_data['folder']
         file.file = validated_data['file']
         file.owner = validated_data['owner']
         file.set_mime_type()
+        file.set_file_size()
         file.save()
         return file
 
