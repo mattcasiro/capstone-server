@@ -50,6 +50,9 @@ urlpatterns += [
     url(r'^api/folders/(?P<folder_id>\d+)/files/(?P<file_id>\d+)/file/$',
         api.FileRedirectAPIView.as_view()),
 
+    url(r'^api/files/$',
+        api.AllFileListAPIView.as_view()),
+
 
 
     url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework'))

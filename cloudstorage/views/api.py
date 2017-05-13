@@ -152,6 +152,23 @@ class FileAPIView(GenericAPIView):
                                  id=self.kwargs['folder_id'])
 
 
+class AllFileListAPIView(mixins.ListModelMixin, FileAPIView):
+    """
+    Returns all files for the requesting user
+    """
+
+    def get_queryset(self):
+        """
+        Filter queryset by owner
+        """
+        queryset = super().get_queryset()
+        queryset = queryset.filter(owner=self.request.user)
+        return queryset
+
+    def get(self, request):
+        return self.list(request=request)
+
+
 class FileListAPIView(mixins.ListModelMixin, mixins.CreateModelMixin, FileAPIView):
     """
     URL eg. /api/folders/:id/files/
