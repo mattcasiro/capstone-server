@@ -40,7 +40,13 @@ class LoginView(APIView):
 
         token = Token.objects.create(user=user)
 
-        return Response({'status': 'Success', 'token': token.key}, status=200)
+        root_folder = Folder.objects.filter(parent=None, owner=user).first()
+
+        return Response({
+            'status': 'Success',
+            'token': token.key,
+            'root_id': root_folder.id,
+        }, status=200)
 
 
 class ProfileView(APIView):
