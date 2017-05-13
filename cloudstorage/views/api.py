@@ -161,8 +161,8 @@ class AllFileListAPIView(mixins.ListModelMixin, FileAPIView):
         """
         Filter queryset by owner
         """
-        queryset = super().get_queryset()
-        queryset = queryset.filter(owner=self.request.user)
+
+        queryset = File.objects.filter(owner=self.request.user)
         return queryset
 
     def get(self, request):
