@@ -1,5 +1,6 @@
 # from django.contrib.auth.models import User
-from django.http import HttpResponseRedirect
+from django.core.files.base import ContentFile
+from django.http import HttpResponseRedirect, HttpResponse
 from rest_framework import routers, serializers, viewsets, mixins
 
 
@@ -224,4 +225,25 @@ class FileRedirectAPIView(FileAPIView):
             return Response(status=404)
 
         return HttpResponseRedirect(file.file.url)
+
+
+class FileStreamAPIView(FileAPIView):
+    """
+    Retrieves the file from the database and returns a redirect to the
+    location of the file.
+    """
+    lookup_field = 'id'
+    lookup_url_kwarg = 'file_id'
+
+    def get(self, request, folder_id, file_id):
+        queryset = File.objects.filter(folder_id=folder_id, owner=request.user)
+
+        try:
+            file = queryset.get(id=file_id)
+        except File.DoesNotExist:
+            return Response(status=404)
+
+        content = ContentFile(file.file.read())
+
+        return HttpResponse(content=content, content_type=file.mime_type)
 
