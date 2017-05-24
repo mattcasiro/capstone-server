@@ -125,8 +125,12 @@ class FolderAPITests(APITestCase):
         self.client.force_authenticate(user=self.user_1)
         data = {'name': 'folder_1a', 'parent': folder_3.id}
         response = self.client.put(url, data, format='json')
+        folder = Folder.objects.get(name='folder_1a')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(Folder.objects.get(name='folder_1a').id, self.folder_1.id)
+        self.assertEqual(folder.id, self.folder_1.id)
+        self.assertEqual(folder.parent, folder_3)
+        self.assertEqual(folder.name, 'folder_1a')
+
 
     def test_delete_folder_detail_not_authenticated(self):
         url = '/api/folders/{}/' .format(self.folder_1.id)
