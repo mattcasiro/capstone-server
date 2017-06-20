@@ -5,6 +5,7 @@ from cloudstorage.models import File
 
 class FileSerializer(serializers.ModelSerializer):
     name = serializers.CharField(required=False)
+    file = serializers.FgitileField(required=False)
 
     class Meta:
         model = File
