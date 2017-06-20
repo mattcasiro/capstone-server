@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/1.11/ref/settings/
 
 import os
 import environ
+import raven
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -52,6 +53,7 @@ INSTALLED_APPS = [
     'rest_framework.authtoken',
     'storages',
     'debug_toolbar',
+    'raven.contrib.django.raven_compat',
 ]
 
 MIDDLEWARE = [
@@ -156,3 +158,10 @@ REST_FRAMEWORK = {
 INTERNAL_IPS = [
     '127.0.0.1',
 ]
+
+RAVEN_CONFIG = {
+    'dsn': 'https://cf48b633b9b44a43bc978236a68182bb:a5edb9ee082242be9a98f936df2e5b8d@sentry2.smartpager.net/29',
+    # If you are using git, you can also automatically configure the
+    # release based on the git info.
+    'release': raven.fetch_git_sha(os.path.dirname(os.pardir)),
+}
