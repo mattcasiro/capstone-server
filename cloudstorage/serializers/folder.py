@@ -43,9 +43,9 @@ class FolderSerializer(serializers.ModelSerializer):
         if 'name' in validated_data:
             instance.name = validated_data['name']
 
-        # TODO: MUST FIX LATER (use MPTT methods)
+        # Move folder to new parent folder
         if 'parent' in validated_data:
-            instance.parent = validated_data['parent']
+            instance.move_to(validated_data['parent'])
 
         instance.save()
         return instance
