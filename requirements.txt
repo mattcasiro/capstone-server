@@ -1,5 +1,5 @@
 api==0.0.1.dev1
-Django==1.11
+Django==1.11.29
 django-debug-toolbar==1.7
 django-mptt==0.8.7
 djangorestframework==3.6.2
